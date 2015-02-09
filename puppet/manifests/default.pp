@@ -226,6 +226,21 @@ exec { 'set-env-for-debugging':
   require => Apache::Vhost['default']
 }
 
+exec {'ionCube':
+  command => "wget http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -O ioncube_loaders_lin_x86-64.tar.gz && tar xvfz ioncube_loaders_lin_x86-64.tar.gz && cp -rf ioncube/ioncube_loader_lin_$(php -r \"echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;\").so ${php_fact_extension_dir} && rm -rf ioncube*" ,
+  require => Class['php']
+}
+
+
+puphpet::ini { 'ionCube':
+  value   => [
+    'zend_extension=/usr/lib/php5/20100525/ioncube_loader_lin_5.4.so'
+  ],
+  ini     => '/etc/php5/conf.d/00-ionCube.ini',
+  notify  => Service['apache'],
+  require => Exec['ionCube']
+}
+
 class { 'scripts': }
 
 class { 'phpmanager': }
